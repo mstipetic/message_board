@@ -1,3 +1,38 @@
+//************************************************************************
+var Comment = Backbone.Model.extend({
+	initialize : function() {
+		this.author = ""
+		this.text = ""
+		this.timestamp = ""
+	}
+});
+
+var Comments = Backbone.Collection.extend({
+	model: Comment
+});
+
+var CommentView = Backbone.View.extend({
+	tagName : "li",
+	className : "comment",
+	render: function() {
+		this.$el.html('<p>comment</p>');
+		return this;
+	}
+});
+
+var CommentsApp = Backbone.View.extend({
+	initialize: function() {
+		this.model.comments.bind('add', this.addOne, this);
+	},
+	addOne : function(comment) {
+		console.log('comments app add one:');
+		//console.log(this)
+		//console.log($(".commentHolder"))
+		var commentView = new CommentView({model: comment})
+		this.$el.append(commentView.render().$el);
+	},
+});
+// ***********************************************************************
 var Post = Backbone.Model.extend({
 	initialize : function() {
 	},
@@ -22,9 +57,10 @@ var PostView = Backbone.View.extend({
 	},
 	render : function() {
 		//this.$el.html("<p>" + this.model.get("text") + '<p>');
-		console.log("model:");
-		console.log(this.model);
-		console.log(this.model.get('text'));
+		console.log("postview render");
+		//console.log("model:");
+		//console.log(this.model);
+		//console.log(this.model.get('text'));
 		this.$el.html(post_template({model : this.model}));
 		return this;
 	},
@@ -34,38 +70,17 @@ var PostView = Backbone.View.extend({
 
 });
 
-var Comment = Backbone.Model.extend({
-	initialize : function() {
-		this.author = ""
-		this.text = ""
-		this.timestamp = ""
-	}
-});
 
-var Comments = Backbone.Collection.extend({
-	model: Comment
-});
-
-var CommentView = Backbone.View.extend({
-	tagName : "li",
-	className : "comment",
-	initialize : function() {
-		console.log("comment view:");
-		console.log(this.model)
-		this.model.comments.bind('add', this.addOne, this);
-	},
-	addOne : function(comment) {
-		console.log(this.$(".commentHolder"))
-	}
-});
-
-var AppView = Backbone.View.extend({
+var PostsApp = Backbone.View.extend({
 	el : "#messages",
 	addOne : function(post) {
 		var postView = new PostView({model: post});
+		console.log("posts app");
 		console.log(post);
-		var commentView = new CommentView({model: post});
-		$("#message_list").append(postView.render().el);
+		postView.render();
+		var commentApp = new CommentsApp({model: post, el : $(".commentList", postView.$el)[0]});
+		console.log($(".commentList", postView.$el));
+		$("#message_list").append(postView.el);
 	},
 	initialize : function() {
 		posts.bind('add', this.addOne, this);
@@ -73,14 +88,15 @@ var AppView = Backbone.View.extend({
 
 });
 
-var App = new AppView();
+var App = new PostsApp();
 
 var init = function() {
 	console.log("init");
-	for (var i = 0; i < 10; i++) {
+	for (var i = 0; i < 5; i++) {
 		var post = new Post({author: "mislav", text: "Remember remember the fifth of november", timestamp: i});
 		posts.add(post);
-		var comment = new Comment{{author : 'mislav', text: 'com'});
+		var comment = new Comment({author : 'mislav', text: 'com'});
+		post.comments.add(comment);
 		
 	}
 };
@@ -91,5 +107,5 @@ var post_template = _.template(
 	'<div class="postText"><%print(model.get("text"))%></div>' +
 	'<div class="postTime"><%print(model.get("timestamp"))%></div>' +
 	'<hr />' +
-	'<div class="commentHolder"></div>'
+	'<div class="commentHolder"><ul class="commentList"></ul></div>'
 	);
