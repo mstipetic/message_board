@@ -80,7 +80,7 @@ var init = function() {
 $(init);
 
 var post_template = _.template(
-	'<p><%model.get("text")%></p>' +
-	'<p><%model.get("timestamp")%></p>'+
+	'<p><%print(model.get("text"))%></p>' +
+	'<p><%print(model.get("timestamp"))%></p>'+
 	'<p><%-"aaa"%></p>'
 	);
