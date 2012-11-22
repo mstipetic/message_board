@@ -14,6 +14,7 @@ var CommentView = Backbone.View.extend({
 var Post = Backbone.RelationalModel.extend({
 	initialize : function() {
 	},
+	idAttribute : '_id',
 	relations : [{
 		type : 'HasMany',
 		key : 'comments',
@@ -25,7 +26,8 @@ var Post = Backbone.RelationalModel.extend({
 });
 
 var PostCollection = Backbone.Collection.extend({
-	model : Post
+	model : Post,
+	url : '/post'
 });
 
 var posts = new PostCollection();

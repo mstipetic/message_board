@@ -21,6 +21,10 @@ func staticHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, path)
 }
 
+func postHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "1")
+}
+
 func websocket_handler(ws *websocket.Conn) {
 	for {
 		var buf string;
@@ -38,12 +42,15 @@ func websocket_handler(ws *websocket.Conn) {
 	}
 }
 
+var r *redis.Client = redis.New("", 0, "")
+
+
 func main() {
-	r := redis.New("", 0, "")
 	router := mux.NewRouter()
 	fmt.Println(r)
 	router.HandleFunc("/", handler)
 	router.HandleFunc("/static/{path}", staticHandler)
+	router.HandleFunc("/post/{id}", postHandler)
 	router.Handle("/ws/", websocket.Handler(websocket_handler))
 	http.ListenAndServe(":8000", router)
 }
