@@ -1,10 +1,27 @@
 <html>
 <head>
+
+<script type="text/template" id="post_template">
+	<div class="postAuthor"><%print(model.get("author"))%></div> 
+	<div class="postText"><%print(model.get("text"))%></div> 
+	<div class="postTime"><%print(model.get("timestamp"))%></div> 
+	<hr /> 
+	<div class="commentHolder"><ul class="commentList"></ul></div>  
+	<textarea rows="4" cols="70"></textarea>
+	<input type="button" value="post"></input>
+</script>
+
+<script type="text/template" id="comment_template">
+	<div class="postAuthor"><%print(model.get("text"))%></div>
+</script>
+
+
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="/static/underscore-min.js"></script>
 <script type="text/javascript" src="/static/backbone-min.js"></script>
+<script type="text/javascript" src="/static/backbone-relational.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/board.css" />
-<script type="text/javascript" src="/static/board.js"></script>
+<script type="text/javascript" src="/static/board2.js"></script>
 
 </head>
 
