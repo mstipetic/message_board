@@ -1,0 +1,12 @@
+#message_list li {
+	list-style-type : none;
+}
+
+#message_list li:hover {
+	background-color : lightgrey;
+}
+
+#container {
+	width : 800px;
+	margin: auto;
+}
