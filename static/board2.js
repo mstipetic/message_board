@@ -47,10 +47,11 @@ var PostView = Backbone.View.extend({
 		return this;
 	},
 	events: {
-		'click input' : 'test'
+		'click input' : 'submitComment'
 	},
-	test : function() {
+	submitComment: function() {
 		var comment = new Comment({text : this.$('textarea').val()});
+		this.$('textarea').val('');
 		this.model.get('comments').add(comment);
 	}
 });
@@ -71,7 +72,7 @@ var App = Backbone.View.extend({
 $(function() {
 	var app = new App();
 	for (var i = 0; i < 5; i++) {
-		var post = new Post({author: "mislav", text: "Remember remember the fifth of november", timestamp: i});
+		var post = new Post({text: "Remember remember the fifth of november", timestamp: i});
 		posts.add(post);
 		var comment= new Comment({author : 'mislav', text: 'com'});
 		post.get('comments').add(comment);
