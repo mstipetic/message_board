@@ -1,5 +1,7 @@
 var Comment = Backbone.RelationalModel.extend({
-
+	url : function() {
+		return this.get('post').url() + '/comments';
+	}
 });
 
 var CommentView = Backbone.View.extend({
@@ -14,7 +16,6 @@ var CommentView = Backbone.View.extend({
 var Post = Backbone.RelationalModel.extend({
 	initialize : function() {
 	},
-	idAttribute : '_id',
 	relations : [{
 		type : 'HasMany',
 		key : 'comments',
@@ -40,6 +41,7 @@ var PostView = Backbone.View.extend({
 	},
 	addComment : function(comment, attr) {
 		var commentView = new CommentView({model : comment});
+		console.log(comment.get('post'));
 		this.$('.commentList').append(commentView.render().$el);
 	},
 	render : function() {
@@ -76,7 +78,7 @@ $(function() {
 		posts.add(post);
 		var comment= new Comment({author : 'mislav', text: 'com'});
 		post.get('comments').add(comment);
-		console.log(post.get('comments'));
+		//console.log(post.get('comments'));
 	}
 });
 

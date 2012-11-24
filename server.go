@@ -42,13 +42,16 @@ type Post struct {
 func newPostHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadAll(r.Body)
 	n, _ := rds.Incr("id_counter")
+	fmt.Println("returned identifier: ", n)
 	fmt.Println("Body: " + string(b))
 	var post Post
 	json.Unmarshal([]byte(string(b)), &post)
 	fmt.Println("Unmarshaled: ", post)
 	post.Author = "mislav"
 	post.Id = n
-	responseText, _ := json.Marshal(post)
+	responseTextByte, _ := json.Marshal(post)
+	responseText := string(responseTextByte)
+	fmt.Println("returning: ", responseText)
 	fmt.Fprint(w, string(responseText))
 }
 
