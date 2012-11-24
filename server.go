@@ -28,6 +28,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Comment struct {
+	Id int64 `json:"id"`
 	Author string `json:"author"`
 	Text string `json:"text"`
 }
@@ -36,6 +37,7 @@ type Post struct {
 	Id int64 `json:"id"`
 	Author string `json:"author"`
 	Text string `json:"text"`
+	Url string `json:"url"`
 	Comments []Comment `json:"comments"`
 }
 
@@ -50,6 +52,22 @@ func newPostHandler(w http.ResponseWriter, r *http.Request) {
 	post.Author = "mislav"
 	post.Id = n
 	responseTextByte, _ := json.Marshal(post)
+	responseText := string(responseTextByte)
+	fmt.Println("returning: ", responseText)
+	fmt.Fprint(w, string(responseText))
+}
+
+func newCommentHandler(w http.ResponseWriter, r *http.Request) {
+	b, _ := ioutil.ReadAll(r.Body)
+	n, _ := rds.Incr("id_counter")
+	fmt.Println("returned identifier: ", n)
+	fmt.Println("Body: " + string(b))
+	var comment Comment 
+	json.Unmarshal([]byte(string(b)), &comment)
+	fmt.Println("Unmarshaled: ", comment)
+	comment.Author = "mislav"
+	comment.Id = n
+	responseTextByte, _ := json.Marshal(comment)
 	responseText := string(responseTextByte)
 	fmt.Println("returning: ", responseText)
 	fmt.Fprint(w, string(responseText))
@@ -82,6 +100,7 @@ func main() {
 	router.HandleFunc("/", handler)
 	router.HandleFunc("/static/{path}", staticHandler)
 	router.HandleFunc("/post", newPostHandler)
+	router.HandleFunc("/post/{id}/comments", newCommentHandler)
 	router.HandleFunc("/post/{id}", postHandler)
 	router.Handle("/ws/", websocket.Handler(websocket_handler))
 	http.ListenAndServe(":8000", router)
