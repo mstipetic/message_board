@@ -88,8 +88,8 @@ var NewPostView = Backbone.View.extend({
 		var post = new Post({title: title, url: url, text: text});
 		$.when(post.save()).then(function() {
 			posts.add(post);
-			//console.log('hej');
-			//console.log(post.id);
+			console.log('hej');
+			console.log(post.id);
 		});
 
 	}
