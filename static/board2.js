@@ -88,10 +88,9 @@ var NewPostView = Backbone.View.extend({
 		var post = new Post({title: title, url: url, text: text});
 		$.when(post.save()).then(function() {
 			posts.add(post);
-			console.log('hej');
-			console.log(post.id);
+			//console.log('hej');
+			//console.log(post.id);
 		});
-
 	}
 });
 
@@ -99,10 +98,20 @@ var App = Backbone.View.extend({
 	el : "#messages",
 	initialize : function() {
 		posts.bind('add', this.addPost, this);
+		this.getPosts();
 	},
 	addPost : function(post) {
 		var postView = new PostView({model : post});
 		this.$el.append(postView.render().$el);
+	},
+	getPosts : function(page) {
+		page = page || 0;
+		$.when($.get('/post', {page : page}))
+			.then(function(post_list) { 
+				console.log('u callbacku');
+				_.each(post_list, function(post) { posts.add(post) });
+				console.log(posts);
+			});
 	}
 });
 
@@ -111,9 +120,9 @@ var App = Backbone.View.extend({
 $(function() {
 	var app = new App();
 	var newPostView= new NewPostView();
-	console.log(newPostView);
+	//console.log(newPostView);
 	newPostView.render();
-	for (var i = 0; i < 5; i++) {
+	for (var i = 0; i < 0; i++) {
 		$('#new_message_title').val('Message title');
 		$('#new_message_url').val('http://www.google.com');
 		$('#new_message_text').val('svasta nesta kul');

@@ -3,13 +3,15 @@ package main
 import (
 	"html/template"
 	"net/http"
-	"github.com/simonz05/godis/redis"
+	//"github.com/simonz05/godis/redis"
+	"github.com/vmihailenco/redis"
 	"github.com/gorilla/mux"
 	"fmt"
 	"code.google.com/p/go.net/websocket"
 	"io/ioutil"
 	"encoding/json"
 	"time"
+	"strconv"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +48,7 @@ type Post struct {
 
 func newPostHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadAll(r.Body)
-	n, _ := rds.Incr("id_counter")
+	n := rds.Incr("id_counter").Val()
 	fmt.Println("returned identifier: ", n)
 	fmt.Println("Body: " + string(b))
 	var post Post
@@ -58,15 +60,15 @@ func newPostHandler(w http.ResponseWriter, r *http.Request) {
 	post.Time = currentTime
 	responseTextByte, _ := json.Marshal(post)
 	responseText := string(responseTextByte)
-	rds.Zadd("posts", float64(currentTime), string(n))
-	rds.Set("post:" + string(n), responseText)
+	rds.ZAdd("posts", redis.Z{float64(currentTime), strconv.FormatInt(n, 10)})
+	rds.Set("post:" + strconv.FormatInt(n, 10), responseText)
 	fmt.Println("returning: ", responseText)
 	fmt.Fprint(w, string(responseText))
 }
 
 func newCommentHandler(w http.ResponseWriter, r *http.Request) {
 	b, _ := ioutil.ReadAll(r.Body)
-	n, _ := rds.Incr("id_counter")
+	n := rds.Incr("id_counter").Val()
 	fields := mux.Vars(r)
 	post_id := fields["id"]
 	fmt.Println("returned identifier: ", n)
@@ -80,13 +82,26 @@ func newCommentHandler(w http.ResponseWriter, r *http.Request) {
 	comment.Id = n
 	responseTextByte, _ := json.Marshal(comment)
 	responseText := string(responseTextByte)
-	rds.Lpush("post:" + post_id + ":comments", responseText)
+	rds.LPush("post:" + post_id + ":comments", responseText)
 	fmt.Println("returning: ", responseText)
 	fmt.Fprint(w, string(responseText))
 }
 
 func getPostsHandler(w http.ResponseWriter, r *http.Request) {
-	
+	w.Header().Set("Content-Type", "application/json")
+	posts := rds.ZRange("posts", 0, 10)
+	fmt.Println("u getPostsHandler")
+	posts_arr := []Post{}
+	for _, id := range posts.Val() {
+		post_rt := rds.Get("post:" + id)
+		var post Post
+		json.Unmarshal([]byte(string(post_rt.Val())), &post)
+		fmt.Println(post)
+		posts_arr = append(posts_arr, post)
+	}
+	marshaled, _ := json.Marshal(posts_arr)
+	fmt.Fprint(w, string(marshaled))
+	//fmt.Fprint(w, "hello")
 }
 
 func websocket_handler(ws *websocket.Conn) {
@@ -107,10 +122,11 @@ func websocket_handler(ws *websocket.Conn) {
 }
 
 
-var rds *redis.Client = redis.New("", 0, "")
+var rds *redis.Client = redis.NewTCPClient("localhost:6379", "", 0)
 
 
 func main() {
+	defer rds.Close()
 	router := mux.NewRouter()
 	fmt.Println(rds)
 	router.HandleFunc("/", handler)
