@@ -1,12 +1,28 @@
+#new_message label {
+	background-color : blue;
+	display: inline-block;
+	width : 50px;
+	vertical-align : top;
+}
+
+#new_message textarea {
+	display: inline;
+	width : 100%;
+}
+
+#new_message .btn {
+	vertical-align : bottom;
+	display : inline-block;
+}
+
+div.container {
+	margin-top : 30px;
+}
+
 #message_list li {
 	list-style-type : none;
 }
 
 #message_list li:hover {
 	background-color : lightgrey;
-}
-
-#container {
-	width : 800px;
-	margin: auto;
 }

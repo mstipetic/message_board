@@ -1,8 +1,10 @@
+<!DOCTYPE html>
 <html>
 <head>
 
 <script type="text/template" id="post_template">
 	<div class="postAuthor"><%print(model.get("author"))%></div> 
+	<div class="postURL"><%print(model.get("url"))%></div> 
 	<div class="postText"><%print(model.get("text"))%></div> 
 	<div class="postTime"><%print(model.get("timestamp"))%></div> 
 	<hr /> 
@@ -12,20 +14,37 @@
 </script>
 
 <script type="text/template" id="comment_template">
-	<div class="postAuthor"><%print(model.get("text"))%></div>
+	<div class="commentText"><%print(model.get("text"))%></div>
 </script>
 
 <script type="text/template" id="new_message_template">
-	<label for="new_message_title">Title:</label>
-	<input type="text" id="new_message_title" />
-	<br />
-	<label for="new_message_url">URL:</label>
-	<input type="text" id="new_message_url" />
-	<br />
-	<label for="new_message_text">Text:</label>
-	<input type="text" id="new_message_text" />
-	<br />
-	<input type="button" id="new_message_btn" value="Submit"/>
+	<div class="row">
+		<div class="span1">
+		<label for="new_message_title">Title:</label>
+		</div>
+		<div class="span10">
+		<textarea rows="1" cols="100" id="new_message_title" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="span1">
+		<label for="new_message_url">URL:</label>
+		</div>
+		<div class="span10">
+		<textarea rows="1" cols="100" id="new_message_url" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="span1">
+		<label for="new_message_text">Text:</label>
+		</div>
+		<div class="span10">
+		<textarea rows="4" cols="100" id="new_message_text" />
+		</div>
+		<div class="span1">
+			<input class="btn" type="button" id="new_message_btn" value="Submit"/>
+		</div>
+	</div>
 </script>
 
 
@@ -34,19 +53,19 @@
 <script type="text/javascript" src="/static/backbone-min.js"></script>
 <script type="text/javascript" src="/static/backbone-relational.js"></script>
 <link rel="stylesheet" type="text/css" href="/static/board.css" />
+<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+<script src="/static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/board2.js"></script>
 
 </head>
 
 <body>
 
-<div id="container">
+<div class="container">
 	<div id="new_message">
-
 	</div>
 	<div id="messages">
 		<ul id="message_list">
-			
 		</ul>
 	</div>
 </div>

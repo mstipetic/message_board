@@ -95,7 +95,7 @@ var NewPostView = Backbone.View.extend({
 });
 
 var App = Backbone.View.extend({
-	el : "#messages",
+	el : "#message_list",
 	initialize : function() {
 		posts.bind('add', this.addPost, this);
 		this.getPosts();
@@ -109,8 +109,17 @@ var App = Backbone.View.extend({
 		$.when($.get('/post', {page : page}))
 			.then(function(post_list) { 
 				console.log('u callbacku');
-				_.each(post_list, function(post) { posts.add(post) });
-				console.log(posts);
+				_.each(post_list, function(post) { 
+					comments = post['comments']
+					delete post['comments']
+					post_instance = new Post(post)
+					posts.add(post_instance)
+					_.each(comments, function(comment) {
+						comment_instance = new Comment(comment)
+						post_instance.get('comments').add(comment_instance)
+					})
+				});
+				console.log(post_list);
 			});
 	}
 });

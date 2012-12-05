@@ -21,6 +21,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func staticHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	fmt.Println("zatrazeni path: ", vars["path"])
 	path := "static/" + string(vars["path"])
 	fmt.Println(path)
 	http.ServeFile(w, r, path)
@@ -92,16 +93,26 @@ func getPostsHandler(w http.ResponseWriter, r *http.Request) {
 	posts := rds.ZRange("posts", 0, 10)
 	fmt.Println("u getPostsHandler")
 	posts_arr := []Post{}
-	for _, id := range posts.Val() {
-		post_rt := rds.Get("post:" + id)
+	for _, post_id := range posts.Val() {
+		post_rt := rds.Get("post:" + post_id)
 		var post Post
 		json.Unmarshal([]byte(string(post_rt.Val())), &post)
 		fmt.Println(post)
+		
+		comments := rds.LRange("post:" + post_id + ":comments", 0, -1)
+		fmt.Println(comments.Val())
+		for _, comment_str := range comments.Val() {
+			var comment Comment
+			json.Unmarshal([]byte(comment_str), &comment)
+			fmt.Print("Dodajem komentar:   ")
+			fmt.Println(comment)
+			post.Comments = append(post.Comments, comment)
+		}
+
 		posts_arr = append(posts_arr, post)
 	}
 	marshaled, _ := json.Marshal(posts_arr)
 	fmt.Fprint(w, string(marshaled))
-	//fmt.Fprint(w, "hello")
 }
 
 func websocket_handler(ws *websocket.Conn) {
@@ -130,7 +141,7 @@ func main() {
 	router := mux.NewRouter()
 	fmt.Println(rds)
 	router.HandleFunc("/", handler)
-	router.HandleFunc("/static/{path}", staticHandler)
+	router.HandleFunc("/static/{path:.*}", staticHandler)
 	router.HandleFunc("/post", newPostHandler).Methods("POST")
 	router.HandleFunc("/post", getPostsHandler).Methods("GET")
 	router.HandleFunc("/post/{id}/comments", newCommentHandler)
